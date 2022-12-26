@@ -7,6 +7,8 @@ const {
 	createTokenUser,
 	attachCookiesToResponse,
 	sendResetPasswordEmail,
+	generateOTP,
+	sendOTPtoRegister,
 } = require("../utils");
 
 const User = require("../models/User");
@@ -62,100 +64,64 @@ const register = async (req, res) => {
 		avatar = "default";
 	}
 
-	if (!isNaN(parseInt(latitude)) && !isNaN(parseInt(longitude))) {
+	if (isNaN(latitude) || isNaN(longitude)) {
 		throw new CustomError.BadRequestError(
 			"Latitude or longitude is not a valid number"
 		);
 	}
 
-	const minutesToExpire = 60;
-	const verificationToken = makeVerificationToken(
-		username,
-		email,
-		password,
-		avatar,
-		latitude,
-		longitude,
-		process.env.VERIFICATION_SECRET,
-		minutesToExpire
-	);
+	const otp = generateOTP();
+	const expires = Date.now() + 1.5 * 60 * 1000; // expires after 90 seconds
+	const data = `${username}.${email}.${otp}.${expires}`;
+	const hash = crypto
+		.createHmac("sha256", process.env.HASH_SECRET)
+		.update(data)
+		.digest("hex");
+	const fullHash = `${hash}.${expires}`;
 
-	const origin =
-		process.env.NODE_ENV === "dev"
-			? "http://localhost:3000"
-			: process.env.REACT_APP_LINK; // later this is the origin link of React client side
-	await sendVerificationEmail(
-		req.useragent.browser,
-		email,
-		verificationToken,
-		origin,
-		minutesToExpire
-	);
+	await sendOTPtoRegister(email, otp);
 
 	res.status(StatusCodes.CREATED).json({
-		msg: "Please check your email to verify your account!",
+		hash: fullHash,
+		msg: "An OTP has been sent to your email!",
 	});
 };
 
-const verifyEmail = async (req, res) => {
-	const { verificationToken } = req.body;
-	if (!verificationToken) {
-		throw new CustomError.UnauthenticatedError("Cannot verify user");
-	}
+const verifyOTPtoRegister = async (req, res) => {
+	let { username, password, email, avatar, latitude, longitude, otp, hash } =
+		req.body;
 
-	let decoded;
-	try {
-		decoded = isTokenValid(verificationToken, process.env.VERIFICATION_SECRET);
-	} catch {
-		throw new CustomError.UnauthenticatedError("Verification Failed");
-	}
+	const [hashValue, expires] = hash.split(".");
 
-	if (
-		!decoded.hasOwnProperty("username") ||
-		!decoded.hasOwnProperty("email") ||
-		!decoded.hasOwnProperty("password") ||
-		!decoded.hasOwnProperty("avatar") ||
-		!decoded.hasOwnProperty("latitude") ||
-		!decoded.hasOwnProperty("longitude") ||
-		!decoded.hasOwnProperty("expirationDate")
-	) {
-		throw new CustomError.UnauthenticatedError("Verification Failed");
-	}
-
-	const {
-		username,
-		email,
-		password,
-		avatar,
-		latitude,
-		longitude,
-		expirationDate,
-	} = decoded;
-	const now = new Date();
-
-	if (new Date(expirationDate).getTime() <= now.getTime()) {
+	const now = Date.now();
+	if (now > parseInt(expires)) {
 		throw new CustomError.UnauthenticatedError(
-			"Verification token is expired after 60 minutes"
+			"OTP is expired after 90 seconds"
 		);
 	}
 
-	const findEmail = await User.findOne({ email });
-	if (findEmail) {
-		throw new CustomError.BadRequestError("This email already exists");
+	const data = `${username}.${email}.${otp}.${expires}`;
+	const newCalculatedHash = crypto
+		.createHmac("sha256", process.env.HASH_SECRET)
+		.update(data)
+		.digest("hex");
+
+	if (newCalculatedHash === hashValue) {
+		const user = await User.create({
+			username,
+			password,
+			email,
+			avatar,
+			latitude,
+			longitude,
+		});
+
+		res.status(StatusCodes.OK).json({
+			msg: `Profile with username: ${username} is created!`,
+		});
+	} else {
+		throw new CustomError.BadRequestError("Invalid OTP. Please try again!");
 	}
-
-	await User.create({
-		username,
-		email,
-		password,
-		avatar,
-		latitude,
-		longitude,
-	});
-
-	res.status(StatusCodes.OK).json({
-		msg: `Profile with username: ${username} is created!`,
-	});
 };
 
 const login = async (req, res) => {
@@ -321,7 +287,7 @@ const resetPassword = async (req, res) => {
 
 module.exports = {
 	register,
-	verifyEmail,
+	verifyOTPtoRegister,
 	login,
 	logout,
 	forgotPassword,

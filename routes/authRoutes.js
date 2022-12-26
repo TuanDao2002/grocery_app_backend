@@ -7,7 +7,7 @@ const {
 
 const {
     register,
-    verifyEmail,
+    verifyOTPtoRegister,
     login,
     logout,
     forgotPassword,
@@ -17,7 +17,7 @@ const {
 const { uploadUserImage } = require("../controllers/imageController");
 
 router.post("/register", register);
-router.post("/verify-email", verifyEmail);
+router.post("/verify-otp-register", verifyOTPtoRegister);
 router.post("/upload-image", uploadUserImage);
 router.post("/login", login);
 router.delete("/logout", authenticateUser, logout);
