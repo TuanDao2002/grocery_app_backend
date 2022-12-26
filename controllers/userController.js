@@ -8,7 +8,7 @@ const normalCharRegex = /^[A-Za-z0-9._-]*$/;
 const editUserProfile = async (req, res) => {
 	const {
 		user: { userId },
-		body: { username, avatar },
+		body: { username, phone, address },
 	} = req;
 
 	const user = await User.findOne({ _id: userId }, { password: 0 });
@@ -30,18 +30,22 @@ const editUserProfile = async (req, res) => {
 		);
 	}
 
-	if (avatar && !avatar.match(/^https:\/\/res.cloudinary.com\//)) {
-		throw new CustomError.BadRequestError(
-			"Please provide a valid avatar image"
-		);
+	if (
+		!phone.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)
+	) {
+		throw new CustomError.BadRequestError("The phone number is not valid");
 	}
 
 	if (username) {
 		user.username = username;
 	}
 
-	if (avatar) {
-		user.avatar = avatar;
+	if (phone) {
+		user.phone = phone;
+	}
+
+	if (address) {
+		user.address = address;
 	}
 
 	await user.save();

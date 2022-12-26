@@ -1,14 +1,12 @@
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../errors");
 const {
-	isTokenValid,
-	makeVerificationToken,
-	sendVerificationEmail,
 	createTokenUser,
 	attachCookiesToResponse,
-	sendResetPasswordEmail,
 	generateOTP,
 	sendOTPtoRegister,
+	sendOTPtoResetPassword,
+	checkRole,
 } = require("../utils");
 
 const User = require("../models/User");
@@ -21,7 +19,7 @@ const crypto = require("crypto");
 const normalCharRegex = /^[A-Za-z0-9._-]*$/;
 
 const register = async (req, res) => {
-	let { username, password, email, avatar, latitude, longitude } = req.body;
+	let { username, password, email, phone, address } = req.body;
 
 	if (username.length < 3 || username.length > 22) {
 		throw new CustomError.BadRequestError(
@@ -47,27 +45,23 @@ const register = async (req, res) => {
 		);
 	}
 
+	if (
+		!phone.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)
+	) {
+		throw new CustomError.BadRequestError("The phone number is not valid");
+	}
+
 	if (!validator.isEmail(email)) {
 		throw new CustomError.BadRequestError("This email is not valid");
 	}
 
-	const findEmail = await User.findOne({ email });
-	if (findEmail) {
-		throw new CustomError.BadRequestError("This email already exists");
-	}
-
-	if (avatar && !avatar.match(/^https:\/\/res.cloudinary.com\//)) {
-		throw new CustomError.BadRequestError(
-			"Please provide a valid avatar image"
-		);
-	} else if (!avatar) {
-		avatar = "default";
-	}
-
-	if (isNaN(latitude) || isNaN(longitude)) {
-		throw new CustomError.BadRequestError(
-			"Latitude or longitude is not a valid number"
-		);
+	const findDuplicate = await User.findOne({ username, email });
+	if (findDuplicate) {
+		if (findDuplicate.username === username) {
+			throw new CustomError.BadRequestError("This username already exists");
+		} else if (findDuplicate.email === email) {
+			throw new CustomError.BadRequestError("This email already exists");
+		}
 	}
 
 	const otp = generateOTP();
@@ -88,8 +82,7 @@ const register = async (req, res) => {
 };
 
 const verifyOTPtoRegister = async (req, res) => {
-	let { username, password, email, avatar, latitude, longitude, otp, hash } =
-		req.body;
+	let { username, password, email, phone, address, otp, hash } = req.body;
 
 	const [hashValue, expires] = hash.split(".");
 
@@ -107,17 +100,18 @@ const verifyOTPtoRegister = async (req, res) => {
 		.digest("hex");
 
 	if (newCalculatedHash === hashValue) {
+		const role = checkRole(username, email);
 		const user = await User.create({
 			username,
 			password,
 			email,
-			avatar,
-			latitude,
-			longitude,
+			phone,
+			role,
+			address,
 		});
 
 		res.status(StatusCodes.OK).json({
-			msg: `Profile with username: ${username} is created!`,
+			msg: `Profile with username: ${user.username} is created!`,
 		});
 	} else {
 		throw new CustomError.BadRequestError("Invalid OTP. Please try again!");
@@ -195,94 +189,56 @@ const forgotPassword = async (req, res) => {
 		throw new CustomError.NotFoundError("This email does not exist");
 	}
 
-	const { username, password, avatar, latitude, longitude } = user;
+	const otp = generateOTP();
+	const expires = Date.now() + 1.5 * 60 * 1000; // expires after 90 seconds
+	const data = `${email}.${otp}.${expires}`;
+	const hash = crypto
+		.createHmac("sha256", process.env.HASH_SECRET)
+		.update(data)
+		.digest("hex");
+	const fullHash = `${hash}.${expires}`;
 
-	const minutesToExpire = 10;
-	const verificationToken = makeVerificationToken(
-		username,
-		email,
-		password,
-		avatar,
-		latitude,
-		longitude,
-		process.env.VERIFICATION_SECRET,
-		minutesToExpire
-	);
-
-	const origin =
-		process.env.NODE_ENV === "dev"
-			? "http://localhost:3000"
-			: process.env.REACT_APP_LINK; // later this is the origin link of React client side
-	await sendResetPasswordEmail(
-		req.useragent.browser,
-		email,
-		verificationToken,
-		origin,
-		minutesToExpire
-	);
+	await sendOTPtoResetPassword(email, otp);
 
 	res.status(StatusCodes.CREATED).json({
+		hash: fullHash,
 		msg: "Please check your email to reset your password!",
 	});
 };
 
 const resetPassword = async (req, res) => {
-	const { verificationToken, newPassword } = req.body;
+	let { email, newPassword, otp, hash } = req.body;
 
-	if (!verificationToken) {
-		throw new CustomError.UnauthenticatedError("Cannot verify user");
-	}
+	const [hashValue, expires] = hash.split(".");
 
-	// check if the password has at least 8 characters, has at least 1 uppercase, 1 lowercase, 1 digit, 1 special character
-	if (
-		!newPassword.match(
-			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*].{8,}$/
-		)
-	) {
-		throw new CustomError.BadRequestError(
-			"The password must have at least 8 characters, has at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character"
-		);
-	}
-
-	let decoded;
-	try {
-		decoded = isTokenValid(verificationToken, process.env.VERIFICATION_SECRET);
-	} catch {
-		throw new CustomError.UnauthenticatedError("Verification Failed");
-	}
-
-	if (
-		!decoded.hasOwnProperty("username") ||
-		!decoded.hasOwnProperty("email") ||
-		!decoded.hasOwnProperty("password") ||
-		!decoded.hasOwnProperty("avatar") ||
-		!decoded.hasOwnProperty("latitude") ||
-		!decoded.hasOwnProperty("longitude") ||
-		!decoded.hasOwnProperty("expirationDate")
-	) {
-		throw new CustomError.UnauthenticatedError("Verification Failed");
-	}
-
-	const { email, expirationDate } = decoded;
-	const now = new Date();
-
-	if (new Date(expirationDate).getTime() <= now.getTime()) {
+	const now = Date.now();
+	if (now > parseInt(expires)) {
 		throw new CustomError.UnauthenticatedError(
-			"Verification token is expired after 10 minutes"
+			"OTP is expired after 90 seconds"
 		);
 	}
 
-	const user = await User.findOne({ email });
-	if (!user) {
-		throw new CustomError.NotFoundError("This email does not exist");
+	const data = `${email}.${otp}.${expires}`;
+	const newCalculatedHash = crypto
+		.createHmac("sha256", process.env.HASH_SECRET)
+		.update(data)
+		.digest("hex");
+
+	if (newCalculatedHash === hashValue) {
+		const user = await User.findOne({ email });
+		if (!user) {
+			throw new CustomError.BadRequestError("This email does not exist");
+		}
+
+		user.password = newPassword;
+		await user.save();
+
+		res.status(StatusCodes.OK).json({
+			msg: "Your password is reset successfully!",
+		});
+	} else {
+		throw new CustomError.BadRequestError("Invalid OTP. Please try again!");
 	}
-
-	user.password = newPassword;
-	await user.save();
-
-	res.status(StatusCodes.OK).json({
-		msg: "Your password is reset successfully!",
-	});
 };
 
 module.exports = {

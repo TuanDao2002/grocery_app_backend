@@ -1,20 +1,20 @@
 const { createJWT, isTokenValid } = require("./jwt");
 const makeVerificationToken = require("./makeVerificationToken");
-const sendResetPasswordEmail = require("./sendResetPasswordEmail");
-const sendVerificationEmail = require("./sendVerificationEmail");
 const sendOTPtoRegister = require("./sendOTPtoRegister");
+const sendOTPtoResetPassword = require("./sendOTPtoResetPassword");
 const createTokenUser = require("./createTokenUser");
 const attachCookiesToResponse = require("./attachCookiesToResponse");
 const generateOTP = require("./generateOTP");
+const checkRole = require("./checkRole");
 
 module.exports = {
 	createJWT,
 	isTokenValid,
 	makeVerificationToken,
-	sendResetPasswordEmail,
-	sendVerificationEmail,
 	sendOTPtoRegister,
+	sendOTPtoResetPassword,
 	createTokenUser,
 	attachCookiesToResponse,
 	generateOTP,
+	checkRole
 };

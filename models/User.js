@@ -24,24 +24,26 @@ const UserSchema = new mongoose.Schema(
 			},
 		},
 
+		phone: {
+			type: String,
+			required: true,
+		},
+
 		password: {
 			type: String,
 			required: true,
 		},
 
-		avatar: {
+		role: {
 			type: String,
-			required: true,
+			enum: {
+				values: ["customer", "staff"],
+				message: "{VALUE} is not supported",
+			},
 		},
 
-		latitude: {
-			type: Number,
-			required: true,
-		},
-
-		longitude: {
-			type: Number,
-			required: true,
+		address: {
+			type: String,
 		},
 	},
 	{ timestamps: true }
