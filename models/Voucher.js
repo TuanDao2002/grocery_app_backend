@@ -26,6 +26,12 @@ const VoucherSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+
+		isAvailable: {
+			type: Boolean,
+			required: true,
+			default: true,
+		},
 	},
 	{ timestamps: true }
 );

@@ -32,6 +32,10 @@ const getAllOrders = async (req, res) => {
 			select: "-password -voucherUsed",
 		})
 		.populate({
+			path: "voucherApplied",
+			select: "-description",
+		})
+		.populate({
 			path: "orderItems.item",
 			select: "-description",
 		});
@@ -112,6 +116,9 @@ const createOrder = async (req, res) => {
 	}
 
 	let total = subTotal - discount;
+	if (total < 0) {
+		total = 0;
+	}
 
 	const newOrder = await Order.create({
 		customer: userId,
