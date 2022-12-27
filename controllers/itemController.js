@@ -22,6 +22,8 @@ const getAllItems = async (req, res) => {
 	} = req;
 
 	const queryObject = {};
+	queryObject.isAvailable = true;
+
 	if (name) {
 		queryObject.name = { $regex: `${name}`, $options: "i" };
 	}
@@ -176,11 +178,12 @@ const deleteItem = async (req, res) => {
 	} = req;
 
 	const item = await Item.findOne({ _id: itemId });
-	if (!item) {
+	if (!item || !item.isAvailable) {
 		throw new CustomError.BadRequestError("This item does not exist");
 	}
 
-	await item.remove();
+	item.isAvailable = false;
+	await item.save();
 	res.status(StatusCodes.OK).json({ msg: "Item is removed" });
 };
 

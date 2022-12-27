@@ -46,10 +46,14 @@ const ItemSchema = new mongoose.Schema(
 			trim: true,
 			default: "default",
 		},
+
+		isAvailable: {
+			type: Boolean,
+			default: true,
+			required: true,
+		},
 	},
 	{ timestamps: true }
 );
-
-ItemSchema.pre("remove", async function () {});
 
 module.exports = mongoose.model("Item", ItemSchema);
