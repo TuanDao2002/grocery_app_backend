@@ -45,6 +45,21 @@ const UserSchema = new mongoose.Schema(
 		address: {
 			type: String,
 		},
+
+		point: {
+			type: Number,
+		},
+
+		voucherUsed: {
+			type: [
+				{
+					type: mongoose.Types.ObjectId,
+					ref: "Voucher",
+				},
+			],
+
+			default: [],
+		},
 	},
 	{ timestamps: true }
 );

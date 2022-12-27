@@ -12,13 +12,7 @@ const uploadUserImage = async (req, res) => {
         fs.unlinkSync(req.files.image.tempFilePath);
         throw new CustomError.BadRequestError("Please upload Image");
     }
-    const maxSize = 1024 * 1024;
-    if (userImage.size > maxSize) {
-        fs.unlinkSync(req.files.image.tempFilePath);
-        throw new CustomError.BadRequestError(
-            "Please upload image smaller than 1MB"
-        );
-    }
+    
     const result = await cloudinary.uploader.upload(
         req.files.image.tempFilePath,
         {

@@ -101,14 +101,28 @@ const verifyOTPtoRegister = async (req, res) => {
 
 	if (newCalculatedHash === hashValue) {
 		const role = checkRole(username, email);
-		const user = await User.create({
-			username,
-			password,
-			email,
-			phone,
-			role,
-			address,
-		});
+
+		let user;
+		if (role === "customer") {
+			user = await User.create({
+				username,
+				password,
+				email,
+				phone,
+				role,
+				address,
+				point: 0,
+				voucherUsed: [],
+			});
+		} else if (role === "staff") {
+			user = await User.create({
+				username,
+				password,
+				email,
+				phone,
+				role,
+			});
+		}
 
 		res.status(StatusCodes.OK).json({
 			msg: `Profile with username: ${user.username} is created!`,
@@ -148,7 +162,19 @@ const login = async (req, res) => {
 	if (existingToken) {
 		refreshToken = existingToken.refreshToken;
 		attachCookiesToResponse({ res, user: tokenUser, refreshToken });
-		res.status(StatusCodes.OK).json({ user: tokenUser });
+		if (user.role === "customer") {
+			res.status(StatusCodes.OK).json({
+				user: {
+					...tokenUser,
+					point: user.point,
+					voucherUsed: user.voucherUsed,
+				},
+			});
+		} else if (user.role === "staff") {
+			res.status(StatusCodes.OK).json({
+				user: tokenUser,
+			});
+		}
 		return;
 	}
 
@@ -161,7 +187,19 @@ const login = async (req, res) => {
 
 	attachCookiesToResponse({ res, user: tokenUser, refreshToken });
 
-	res.status(StatusCodes.OK).json({ user: tokenUser });
+	if (user.role === "customer") {
+		res.status(StatusCodes.OK).json({
+			user: {
+				...tokenUser,
+				point: user.point,
+				voucherUsed: user.voucherUsed,
+			},
+		});
+	} else if (user.role === "staff") {
+		res.status(StatusCodes.OK).json({
+			user: tokenUser,
+		});
+	}
 };
 
 const logout = async (req, res) => {
