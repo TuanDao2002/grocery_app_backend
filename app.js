@@ -66,12 +66,28 @@ app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT || 8080;
 
+const { connectedUsers } = require("./utils");
+
 const start = async () => {
 	try {
 		await connectDB(process.env.MONGO_URI);
-		app.listen(port, () =>
+		const server = app.listen(port, () =>
 			console.log(`Server is listening on port ${port}...`)
 		);
+
+		const io = require("socket.io")(server, {
+			cors: {
+				origin: [process.env.REACT_APP_LINK, "http://localhost:3000"],
+			},
+		});
+
+		io.on("connection", (socket) => {
+			socket.on("subscribe", async (userId) => {
+				connectedUsers[userId] = socket;
+			});
+		});
+
+		app.io = io;
 	} catch (error) {
 		console.log(error);
 	}

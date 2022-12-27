@@ -104,8 +104,8 @@ const createOrder = async (req, res) => {
 
 	for (let voucherId of voucherApplied) {
 		const voucher = await Voucher.findOne({ _id: voucherId });
-		if (!voucher) {
-			continue;
+		if (!voucher || !voucher.isAvailable) {
+			throw new CustomError.BadRequestError("This voucher is not available");
 		}
 
 		if (voucher.type === "points") {
@@ -145,7 +145,7 @@ const deleteOrder = async (req, res) => {
 	} = req;
 
 	const order = await Order.findOne({ _id: orderId });
-	if (!order) {
+	if (!order || !order.isAvailable) {
 		throw new CustomError.BadRequestError("This order does not exist");
 	}
 

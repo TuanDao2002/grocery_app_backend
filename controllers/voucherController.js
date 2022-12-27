@@ -4,6 +4,8 @@ const CustomError = require("../errors");
 const Voucher = require("../models/Voucher");
 const mongoose = require("mongoose");
 const types = ["points", "percentage"];
+const { connectedUsers } = require("../utils");
+const notifySocket = require("../socket/notify");
 
 const getAllVouchers = async (req, res) => {
 	let {
@@ -78,6 +80,8 @@ const createVoucher = async (req, res) => {
 		type,
 		value,
 	});
+
+	notifySocket(req.app.io, newVoucher);
 
 	res.status(StatusCodes.OK).json({ voucher: newVoucher });
 };
