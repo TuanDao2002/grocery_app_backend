@@ -29,12 +29,13 @@ const errorHandlerMiddleware = require("./middleware/error-handler");
 
 app.set("trust proxy", 1);
 app.use(helmet());
-app.use(
-	cors({
-		credentials: true,
-		origin: [process.env.REACT_APP_LINK, "http://localhost:3000"], // only allow website in this domain too access the resource of this server
-	})
-);
+// app.use(
+// 	cors({
+// 		credentials: true,
+// 		origin: [process.env.REACT_APP_LINK, "http://localhost:3000"], // only allow website in this domain too access the resource of this server
+// 	})
+// );
+app.use(cors());
 app.use(xss());
 app.use(useragent.express());
 
@@ -77,7 +78,7 @@ const start = async () => {
 
 		const io = require("socket.io")(server, {
 			cors: {
-				origin: [process.env.REACT_APP_LINK, "http://localhost:3000"],
+				origin: "*",
 			},
 		});
 

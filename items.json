@@ -1,0 +1,161 @@
+[
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672201096/broccoli_n8iz4j.png",
+		"name": "Broccoli",
+		"description": "The type of vegetable that is good for your health. We sold them by each kilogram",
+		"price": 50000,
+		"category": "vegetable",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672199230/cucumber_kzyjmb.jpg",
+		"name": "Cucumber",
+		"description": "The type of vegetable that is good for your health. We sold them by each kilogram",
+		"price": 25000,
+		"category": "vegetable",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672199516/Richard_s_Pork_Tasso_iklrve.jpg",
+		"name": "Richard's Pork Tasso",
+		"description": "Quality pork from USA. We sold them by each kilogram",
+		"price": 150000,
+		"category": "meat",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672199516/Prime_Beef_Steak_-_Ribeye_kye4wo.jpg",
+		"name": "Prime Beef Steak",
+		"description": "Quality beef from USA. We sold them by each kilogram",
+		"price": 250000,
+		"category": "meat",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672200785/Fuji_apple_nzlfab.jpg",
+		"name": "Fuji apple",
+		"description": "High quality apple from Japan. We sold them by each kilogram",
+		"price": 80000,
+		"category": "fruit",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672201182/orange_cjtvlx.jpg",
+		"name": "Orange",
+		"description": "Fresh orange during summer. We sold them by each kilogram",
+		"price": 60000,
+		"category": "fruit",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672201489/Mozzarella_cheese_w6rbhe.jpg",
+		"name": "Mozzarella cheese",
+		"description": "Quality cheese from Italy. We sold them by each kilogram",
+		"price": 180000,
+		"category": "diary",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672201680/milk_u8qvvc.jpg",
+		"name": "Fresh milk",
+		"description": "Fresh milk for good health. We sold them by each kilogram",
+		"price": 20000,
+		"category": "diary",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672201864/canned_salmon_i1c0wi.jpg",
+		"name": "Canned salmon",
+		"description": "Canned salmon for good health. We sold them by each can",
+		"price": 160000,
+		"category": "canned",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672202126/canned_tuna_vd6jhc.jpg",
+		"name": "Canned tuna",
+		"description": "Canned tuna for good health. We sold them by each can",
+		"price": 40000,
+		"category": "canned",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672202543/French_fries_u7xxjb.jpg",
+		"name": "French fries",
+		"description": "Nice fries for anyone. We sold them by each kilogram",
+		"price": 65000,
+		"category": "snack",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672202733/potato_chips_v8lnbj.jpg",
+		"name": "Potato chips",
+		"description": "Nice potato chips for anyone. We sold them by each kilogram",
+		"price": 50000,
+		"category": "snack",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672202955/Heinz_Tomato_Ketchup_nkdyrz.jpg",
+		"name": "Heinz Tomato Ketchup",
+		"description": "Tomato ketchup that makes everything tastes better. We sold them by each bottle",
+		"price": 60000,
+		"category": "spice",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672203156/Samyang_Chilli_Sauce_dtkmtm.jpg",
+		"name": "Samyang Chilli Sauce",
+		"description": "Samyang chilli sauce that makes everything tastes better. We sold them by each bottle",
+		"price": 95000,
+		"category": "spice",
+		"isAvailable": true
+	},
+
+	{
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672203350/broom_xhjtfx.jpg",
+		"name": "Broom",
+		"description": "A tool to clean your house better",
+		"price": 40000,
+		"category": "household",
+		"isAvailable": true
+	},
+
+    {
+		"image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672204006/kitchen_knife_qy7uij.jpg",
+		"name": "Kitchen knife",
+		"description": "A tool to make your cooking easier",
+		"price": 60000,
+		"category": "household",
+		"isAvailable": true
+	},
+
+    {
+        "image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672204292/Cetaphil_cleanser_i2g6vr.jpg",
+        "name": "Cetaphil face cleanser",
+        "description": "A number one choice for face cleanser",
+        "price": 330000,
+        "category": "personal hygiene"
+    },
+
+    {
+        "image": "https://res.cloudinary.com/dlu4it0gk/image/upload/v1672204562/Listerine_mouthwash_svcf6c.jpg",
+        "name": "Listerine mouthwash",
+        "description": "A number one choice for mouthwash",
+        "price": 150000,
+        "category": "personal hygiene"
+    }
+]
