@@ -55,7 +55,9 @@ const register = async (req, res) => {
 		throw new CustomError.BadRequestError("This email is not valid");
 	}
 
-	const findDuplicate = await User.findOne({ username, email });
+	const findDuplicate = await User.findOne({
+		$or: [{ username: username }, { email: email }],
+	});
 	if (findDuplicate) {
 		if (findDuplicate.username === username) {
 			throw new CustomError.BadRequestError("This username already exists");
