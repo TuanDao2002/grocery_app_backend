@@ -51,13 +51,7 @@ const UserSchema = new mongoose.Schema(
 		},
 
 		voucherUsed: {
-			type: [
-				{
-					type: mongoose.Types.ObjectId,
-					ref: "Voucher",
-				},
-			],
-
+			type: [String],
 			default: [],
 		},
 	},

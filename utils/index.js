@@ -6,6 +6,7 @@ const createTokenUser = require("./createTokenUser");
 const attachCookiesToResponse = require("./attachCookiesToResponse");
 const generateOTP = require("./generateOTP");
 const checkRole = require("./checkRole");
+const connectedUsers = require("./connectedUsers");
 
 module.exports = {
 	createJWT,
@@ -16,5 +17,6 @@ module.exports = {
 	createTokenUser,
 	attachCookiesToResponse,
 	generateOTP,
-	checkRole
+	checkRole,
+	connectedUsers
 };

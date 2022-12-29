@@ -43,13 +43,7 @@ const OrderSchema = new mongoose.Schema(
 		},
 
 		voucherApplied: {
-			type: [
-				{
-					type: mongoose.Types.ObjectId,
-					ref: "Voucher",
-				},
-			],
-
+			type: [String],
 			required: true,
 			default: [],
 		},

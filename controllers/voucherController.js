@@ -49,8 +49,12 @@ const getAllVouchers = async (req, res) => {
 
 const createVoucher = async (req, res) => {
 	const {
-		body: { title, description, type, value },
+		body: { code, title, description, type, value },
 	} = req;
+
+	if (!code || code === "") {
+		throw new CustomError.BadRequestError("Please provide code");
+	}
 
 	if (!title || title === "") {
 		throw new CustomError.BadRequestError("Please provide title");
@@ -74,7 +78,18 @@ const createVoucher = async (req, res) => {
 		);
 	}
 
+	const findDuplicateCode = await Voucher.findOne({
+		code: code,
+		isAvailable: true,
+	});
+	if (findDuplicateCode) {
+		throw new CustomError.BadRequestError(
+			"The code for this voucher is the same with another one"
+		);
+	}
+
 	const newVoucher = await Voucher.create({
+		code,
 		title,
 		description,
 		type,

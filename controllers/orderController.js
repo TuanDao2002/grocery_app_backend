@@ -32,10 +32,6 @@ const getAllOrders = async (req, res) => {
 			select: "-password -voucherUsed",
 		})
 		.populate({
-			path: "voucherApplied",
-			select: "-description",
-		})
-		.populate({
 			path: "orderItems.item",
 			select: "-description",
 		});
@@ -77,11 +73,9 @@ const createOrder = async (req, res) => {
 	} else {
 		for (let orderItem of orderItems) {
 			const { item, quantity } = orderItem;
-			console.log(item);
 			const findItem = await Item.findOne({
 				_id: mongoose.Types.ObjectId(item),
 			});
-			console.log(findItem.price);
 
 			if (findItem) {
 				subTotal += findItem.price * quantity;
@@ -102,10 +96,21 @@ const createOrder = async (req, res) => {
 		discount += convertedPoints * 500;
 	}
 
-	for (let voucherId of voucherApplied) {
-		const voucher = await Voucher.findOne({ _id: voucherId });
-		if (!voucher || !voucher.isAvailable) {
-			throw new CustomError.BadRequestError("This voucher is not available");
+	for (let voucherCode of voucherApplied) {
+		const voucher = await Voucher.findOne({
+			code: voucherCode,
+			isAvailable: true,
+		});
+		if (!voucher) {
+			throw new CustomError.BadRequestError(
+				`Voucher with code: ${voucherCode} is not available`
+			);
+		}
+
+		if (user.voucherUsed.includes(voucherCode)) {
+			throw new CustomError.BadRequestError(
+				`Voucher with code: ${voucherCode} was already used`
+			);
 		}
 
 		if (voucher.type === "points") {
@@ -134,6 +139,9 @@ const createOrder = async (req, res) => {
 		user.points += 1;
 	}
 	user.points -= convertedPoints;
+	for (let voucherCode of voucherApplied) {
+		user.voucherUsed.push(voucherCode);
+	}
 	await user.save();
 
 	res.status(StatusCodes.OK).json({ order: newOrder });

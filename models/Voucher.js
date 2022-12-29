@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const VoucherSchema = new mongoose.Schema(
 	{
+		code: {
+			type: String,
+			required: true,
+		},
+
 		title: {
 			type: String,
 			required: true,
@@ -36,15 +41,12 @@ const VoucherSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-VoucherSchema.pre("remove", async function () {
-	await this.model("User").updateMany(
-		{ role: "customer" },
-		{
-			$pull: {
-				voucherUsed: this._id,
-			},
-		}
-	);
+VoucherSchema.pre("save", async function () {
+	await this.model("User").updateMany({
+		$pull: {
+			voucherUsed: this.code,
+		},
+	});
 });
 
 module.exports = mongoose.model("Voucher", VoucherSchema);
