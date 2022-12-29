@@ -77,6 +77,18 @@ const createOrder = async (req, res) => {
 				_id: mongoose.Types.ObjectId(item),
 			});
 
+			if (!findItem.isAvailable) {
+				throw new CustomError.BadRequestError(
+					`Item ${findItem.name} is not available`
+				);
+			}
+
+			if (findItem.quantity < quantity) {
+				throw new CustomError.BadRequestError(
+					`Quantity of ${findItem.name} is not enough for this order`
+				);
+			}
+
 			if (findItem) {
 				subTotal += findItem.price * quantity;
 			}
@@ -134,7 +146,9 @@ const createOrder = async (req, res) => {
 		discount,
 		total,
 	});
+	res.status(StatusCodes.OK).json({ order: newOrder });
 
+	// update user's points, voucher's used and item's quantity
 	if (subTotal >= 100000) {
 		user.points += 1;
 	}
@@ -144,7 +158,15 @@ const createOrder = async (req, res) => {
 	}
 	await user.save();
 
-	res.status(StatusCodes.OK).json({ order: newOrder });
+	for (let orderItem of orderItems) {
+		const { item, quantity } = orderItem;
+		const findItem = await Item.findOne({
+			_id: mongoose.Types.ObjectId(item),
+		});
+
+		findItem.quantity -= quantity;
+		await findItem.save();
+	}
 };
 
 const deleteOrder = async (req, res) => {

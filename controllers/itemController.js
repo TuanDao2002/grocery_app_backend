@@ -80,7 +80,7 @@ const getItemDetail = async (req, res) => {
 
 const createItem = async (req, res) => {
 	const {
-		body: { name, description, price, category, image },
+		body: { name, description, price, category, image, quantity },
 	} = req;
 
 	if (!name || name === "") {
@@ -109,12 +109,19 @@ const createItem = async (req, res) => {
 		throw new CustomError.BadRequestError("Please provide a valid image");
 	}
 
+	if (!quantity || isNaN(quantity) || quantity < 0) {
+		throw new CustomError.BadRequestError(
+			"Please enter a valid positive quantity"
+		);
+	}
+
 	const newItem = await Item.create({
 		name,
 		description,
 		price,
 		category,
 		image,
+		quantity,
 	});
 
 	res.status(StatusCodes.OK).json({ item: newItem });
@@ -123,7 +130,7 @@ const createItem = async (req, res) => {
 const updateItem = async (req, res) => {
 	const {
 		params: { itemId },
-		body: { name, description, price, category, image },
+		body: { name, description, price, category, image, quantity },
 	} = req;
 
 	const findItem = await Item.findOne({ _id: itemId });
@@ -165,6 +172,12 @@ const updateItem = async (req, res) => {
 		throw new CustomError.BadRequestError("Please provide a valid image");
 	} else {
 		findItem.image = image;
+	}
+
+	if (!quantity || isNaN(quantity) || quantity < 0) {
+		throw new CustomError.BadRequestError(
+			"Please enter a valid positive quantity"
+		);
 	}
 
 	await findItem.save();

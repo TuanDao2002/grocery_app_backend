@@ -47,6 +47,12 @@ const ItemSchema = new mongoose.Schema(
 			default: "default",
 		},
 
+		quantity: {
+			type: Number,
+			required: true,
+			min: [0, "Quanity must be postivie"],
+		},
+
 		isAvailable: {
 			type: Boolean,
 			default: true,
