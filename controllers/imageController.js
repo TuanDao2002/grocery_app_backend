@@ -10,9 +10,11 @@ const uploadUserImage = async (req, res) => {
     const userImage = req.files.image;
     if (!userImage.mimetype.startsWith("image")) {
         fs.unlinkSync(req.files.image.tempFilePath);
-        throw new CustomError.BadRequestError("Please upload Image");
+        throw new CustomError.BadRequestError(
+            "Please upload Image, not " + userImage.mimetype + " type"
+        );
     }
-    
+
     const result = await cloudinary.uploader.upload(
         req.files.image.tempFilePath,
         {
@@ -22,9 +24,7 @@ const uploadUserImage = async (req, res) => {
     );
 
     fs.unlinkSync(req.files.image.tempFilePath);
-    res
-        .status(StatusCodes.OK)
-        .json({ image: { src: result.secure_url } });
+    res.status(StatusCodes.OK).json({ image: { src: result.secure_url } });
 };
 
 module.exports = {
