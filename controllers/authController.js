@@ -16,7 +16,6 @@ const validator = require("validator");
 const useragent = require("express-useragent");
 const crypto = require("crypto");
 
-const normalCharRegex = /^[A-Za-z0-9._-]*$/;
 
 const register = async (req, res) => {
 	let { username, password, email, phone, address } = req.body;
@@ -24,13 +23,6 @@ const register = async (req, res) => {
 	if (username.length < 3 || username.length > 22) {
 		throw new CustomError.BadRequestError(
 			"The username must have from 3 to 22 characters"
-		);
-	}
-
-	// prevent SQL injection
-	if (!username.match(normalCharRegex)) {
-		throw new CustomError.BadRequestError(
-			"The username must not have strange characters"
 		);
 	}
 
