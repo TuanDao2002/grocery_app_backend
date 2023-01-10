@@ -160,7 +160,7 @@ const login = async (req, res) => {
 			res.status(StatusCodes.OK).json({
 				user: {
 					...tokenUser,
-					point: user.points,
+					points: user.points,
 					voucherUsed: user.voucherUsed,
 				},
 			});
