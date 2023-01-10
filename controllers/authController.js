@@ -105,7 +105,7 @@ const verifyOTPtoRegister = async (req, res) => {
 				phone,
 				role,
 				address,
-				point: 0,
+				points: 0,
 				voucherUsed: [],
 			});
 		} else if (role === "staff") {
