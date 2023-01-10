@@ -5,7 +5,7 @@ const Feedback = require("../models/Feedback");
 const User = require("../models/User");
 
 const getAllFeedbacks = async (req, res) => {
-	let feedbacks = await Feedback.find({});
+	let feedbacks = await Feedback.find({}).sort({ createdAt: -1 });
 	res.status(StatusCodes.OK).json({ feedbacks });
 };
 
