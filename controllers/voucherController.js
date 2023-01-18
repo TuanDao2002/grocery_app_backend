@@ -3,7 +3,7 @@ const CustomError = require("../errors");
 
 const Voucher = require("../models/Voucher");
 const mongoose = require("mongoose");
-const types = ["points", "percentage"];
+const types = ["value", "percentage"];
 const { connectedUsers } = require("../utils");
 const notifySocket = require("../socket/notify");
 
