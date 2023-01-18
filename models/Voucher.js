@@ -20,7 +20,7 @@ const VoucherSchema = new mongoose.Schema(
 		type: {
 			type: String,
 			enum: {
-				values: ["points", "percentage"],
+				values: ["value", "percentage"],
 				message: "{VALUE} is not supported",
 			},
 
