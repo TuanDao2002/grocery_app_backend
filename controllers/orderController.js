@@ -15,7 +15,17 @@ const getAllOrders = async (req, res) => {
     const queryObject = {};
     queryObject.isAvailable = true;
     queryObject.isFulfilled = isFulfilled === "true" ? true : false;
-    let orders = await Order.find(queryObject);
+    let orders = Order.find(queryObject)
+        .populate({
+            path: "customer",
+            select: "-password -voucherUsed",
+        })
+        .populate({
+            path: "orderItems.item",
+            select: "-description",
+        });
+    orders = orders.sort("createdAt _id");
+    orders = await orders;
     res.status(StatusCodes.OK).json({ orders });
 };
 
