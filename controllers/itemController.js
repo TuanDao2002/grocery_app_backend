@@ -7,7 +7,7 @@ const categories = [
 	"vegetable",
 	"meat",
 	"fruit",
-	"dairy",
+	"diary",
 	"canned",
 	"snack",
 	"drink",
