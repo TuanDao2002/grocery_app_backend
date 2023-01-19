@@ -42,7 +42,7 @@ const getAllItems = async (req, res) => {
 		queryObject._id = { $lt: _id };
 	}
 
-	let items = Item.find(queryObject).select("-description");
+	let items = Item.find(queryObject);
 	items = items.sort("-createdAt -_id");
 	items = items.limit(resultsLimitPerLoading);
 	const results = await items;
